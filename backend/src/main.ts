@@ -1,39 +1,7 @@
 // Require the framework and instantiate it
-
-import { fastify as fastifyCreator } from "fastify";
-import postgres, { PostgresDb } from 'fastify-postgres';
-import argon2 from 'argon2';
 import { FromSchema } from "json-schema-to-ts";
-import cors from 'fastify-cors';
-import jwt from 'jsonwebtoken';
-
-
-const fastify = fastifyCreator({ logger: true })
-
-fastify.register(cors, {});
-
-fastify.register(postgres, {
-  connectionString: 'postgres://postgres:password@localhost/forum',
-});
-
-
-const makeJwt = (data: {id: number, username: string}) => {
-  return jwt.sign(data, 'password');
-}
-
-// Declare a route
-fastify.get('/api/users', async (request, reply) => {
-  fastify.pg.connect((err, client, release) => {
-    if (err) return reply.send(err);
-
-    client.query(
-      'SELECT * FROM users WHERE id=0;', [], (err: any, result: any) => {
-        release();
-        reply.send(err || result);
-      }
-    )
-  });
-});
+import { login, register } from "./auth";
+import { fastify } from './fastifyApp';
 
 const userRegistrationBodySchema = {
   type: 'object',
@@ -52,42 +20,22 @@ fastify.post('/api/register', {
   async (request, reply) => {
     let body = (request.body as FromSchema<typeof userRegistrationBodySchema>);
     let { username, password } = body;
-
-    if (username === '') {
-      let err = new Error('Invaild username');
-      reply.send(err);
-    }
-
-    let hash = await argon2.hash(password);
-
-    fastify.pg.connect((err, client, release) => {
-      if (err) return reply.send(err);
-
-      client.query(
-        'INSERT INTO users (username, hash) VALUES ($1, $2) RETURNING id, username;', [username, hash], (err, result) => {
-          release();
-          
-          if (!err) {
-            
-            console.log(result.rows);
-
-            reply.send({
-              jwt: makeJwt({
-                id: result.rows[0].id,
-                username: result.rows[0].username,
-              })
-            })
-          } else {
-          reply.send(err);
-            
-          }
-        }
-      )
-    });
+    reply.send(await register(username, password));
   });
 
-fastify.post('/api/login', async (request, reply) => {
+const userLoginBodySchema = {
+  type: 'object',
+  properties: {
+    username: { type: 'string' },
+    password: { type: 'string' }
+  },
+  required: ['username', 'password'],
+} as const;
 
+fastify.post('/api/login', { schema: { body: userLoginBodySchema } }, async (request, reply) => {
+  let body = (request.body as FromSchema<typeof userLoginBodySchema>);
+  let { username, password } = body;
+  reply.send(await login(username, password));
 });
 
 fastify.post('/api/discussions', async (request, reply) => {
