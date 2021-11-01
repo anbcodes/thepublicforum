@@ -26,6 +26,7 @@
     "fastify": "^3.22.1",
     "fastify-cors": "^6.0.2",
     "fastify-postgres": "^3.6.0",
+    "jose": "^4.1.2",
     "json-schema-to-ts": "^1.6.4",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.1"

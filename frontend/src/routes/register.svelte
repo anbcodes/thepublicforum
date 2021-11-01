@@ -2,10 +2,32 @@
 	import { api } from '../api';
 
 	let password = '';
+	let passwordConfirm = '';
 	let username = '';
 	let error = '';
 
+	const isValidUsername = (name: string) =>
+		name !== '' && name.length < 50 && /^[0-9A-Za-z_]+$/.test(name);
+	const isValidPassword = (pwd: string) =>
+		pwd !== '' && pwd.length > 10 && pwd.length < 50 && /^[ -~]+$/.test(pwd);
+
 	let register = async () => {
+		if (password !== passwordConfirm) {
+			error = 'Passwords must match!';
+			return;
+		}
+
+		if (!isValidUsername(username)) {
+			error =
+				'The username must be less then 50 characters and can only contain 0-9 A-z and underscore';
+			return;
+		}
+
+		if (!isValidPassword(username)) {
+			error = 'The password must be greater then 10 characters and less then 50 characters';
+			return;
+		}
+
 		let res = await api.post('/register', {
 			username,
 			password
@@ -35,6 +57,13 @@
 				class="border-2 rounded border-slate-500"
 				type="password"
 				bind:value={password}
+			/>
+		</div>
+		<div class="m-2">
+			Confirm Password: <input
+				class="border-2 rounded border-slate-500"
+				type="password"
+				bind:value={passwordConfirm}
 			/>
 		</div>
 		<button class="m-2 border-2 rounded-lg border-slate-500 p-1" on:click={register}

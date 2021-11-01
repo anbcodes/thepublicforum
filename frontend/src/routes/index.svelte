@@ -1,5 +1,4 @@
 <script lang="ts">
-	import axios from 'axios';
-
-	let result = '';
+	import { onMount } from 'svelte';
+	import jwt from 'jsonwebtoken';
 </script>

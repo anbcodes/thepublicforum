@@ -9,13 +9,13 @@ const makeJwt = (data: { id: number, username: string }) => {
 }
 
 const isValidUsername = (name: string) => name !== '' && name.length < 50 && /^[0-9A-Za-z_]+$/.test(name);
-const isVaildPassword = (pwd: string) => pwd !== '' && pwd.length > 10 && pwd.length < 50 && /^[ -~]+$/.test(pwd);
+const isValidPassword = (pwd: string) => pwd !== '' && pwd.length > 10 && pwd.length < 50 && /^[ -~]+$/.test(pwd);
 
 export const register = async (username: string, password: string): Promise<{ jwt: string } | Error> => {
     if (!isValidUsername(username)) {
         return new Error('Invaild username ' + username);
     }
-    if (!isVaildPassword(password)) {
+    if (!isValidPassword(password)) {
         return new Error('Invaild password');
     }
 
@@ -34,7 +34,7 @@ export const login = async (username: string, password: string): Promise<{ jwt: 
     if (!isValidUsername(username)) {
         return new Error('Invaild username');
     }
-    if (!isVaildPassword(password)) {
+    if (!isValidPassword(password)) {
         return new Error('Invaild password');
     }
 
