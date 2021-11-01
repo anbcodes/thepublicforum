@@ -23,7 +23,7 @@
 			return;
 		}
 
-		if (!isValidPassword(username)) {
+		if (!isValidPassword(password)) {
 			error = 'The password must be greater then 10 characters and less then 50 characters';
 			return;
 		}

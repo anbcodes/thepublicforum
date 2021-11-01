@@ -1,10 +1,10 @@
 #!/bin/sh
 
-mkdir -p `pwd`/database
+mkdir -p `pwd`/backend/database
 
 docker run --rm \
   -e POSTGRES_PASSWORD=password \
   -e PGDATA=/var/lib/postgresql/data/pgdata \
   -p 5432:5432 \
-  -v `pwd`/database:/var/lib/postgresql/data \
+  -v `pwd`/backend/database:/var/lib/postgresql/data \
   postgres

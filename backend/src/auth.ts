@@ -1,11 +1,22 @@
-import jwt from "jsonwebtoken";
 import argon2 from 'argon2';
 import { createUser, getUserByUsername } from "./database";
+import { importJWK, jwtVerify, KeyLike, SignJWT } from 'jose';
+import { readFile } from "fs/promises";
+import pubkeyJson from './pubkey.json';
+import privkeyJson from './privkey.json';
 
-const JWT_SECRET = 'password';
+let privkey: null | (Uint8Array | KeyLike) = null;
+let pubkey: null | (Uint8Array | KeyLike) = null;
 
-const makeJwt = (data: { id: number, username: string }) => {
-    return jwt.sign(data, JWT_SECRET);
+const makeJwt = async (data: { id: number, username: string }) => {
+    if (!privkey) {
+        privkey = await importJWK(privkeyJson, 'RS256');
+    }
+    let jwt = await new SignJWT(data)
+        .setProtectedHeader({ alg: 'RS256' })
+        .setIssuedAt()
+        .sign(privkey);
+    return jwt;
 }
 
 const isValidUsername = (name: string) => name !== '' && name.length < 50 && /^[0-9A-Za-z_]+$/.test(name);
@@ -23,7 +34,7 @@ export const register = async (username: string, password: string): Promise<{ jw
     let user = await createUser(username, hash);
 
     return {
-        jwt: makeJwt({
+        jwt: await makeJwt({
             username: user.username,
             id: user.id,
         })
@@ -43,7 +54,7 @@ export const login = async (username: string, password: string): Promise<{ jwt: 
 
     if (correctPassword) {
         return {
-            jwt: makeJwt({
+            jwt: await makeJwt({
                 username: user.username,
                 id: user.id,
             })
@@ -53,6 +64,10 @@ export const login = async (username: string, password: string): Promise<{ jwt: 
     }
 }
 
-export const extractJwt = (token: string) => {
-    return jwt.verify(token, JWT_SECRET);
+export const extractJwt = async (token: string) => {
+    if (!pubkey) {
+        pubkey = await importJWK(pubkeyJson, 'RS256');
+    }
+
+    return jwtVerify(token, pubkey);
 }

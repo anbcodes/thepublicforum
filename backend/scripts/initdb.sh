@@ -1,2 +1,0 @@
-psql -c "CREATE DATABASE forum;" postgres://postgres:password@localhost
-psql -c "CREATE TABLE users(id SERIAL PRIMARY KEY NOT NULL, username TEXT NOT NULL, hash TEXT NOT NULL);" postgres://postgres:password@localhost/forum

@@ -5,7 +5,7 @@
 	let username = '';
 	let error = '';
 
-	let register = async () => {
+	let login = async () => {
 		let res = await api.post('/login', {
 			username,
 			password
@@ -37,8 +37,8 @@
 				bind:value={password}
 			/>
 		</div>
-		<button class="m-2 border-2 rounded-lg border-slate-500 p-1" on:click={register}
-			>Create Account</button
+		<button class="m-2 border-2 rounded-lg border-slate-500 p-1" on:click={login}
+			>Login</button
 		>
 		<div class="m-3 text-red-600">{error}</div>
 	</div>
